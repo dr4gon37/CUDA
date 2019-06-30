@@ -24,7 +24,7 @@ __global__ void colorConvert(unsigned char * grayImage,
 	}
 }
 
-cudaError_t addWithCuda(unsigned char* data, unsigned int width, unsigned int height)
+cudaError_t colorConvertWithCuda(unsigned char* data, unsigned char*dataGrey, unsigned int width, unsigned int height)
 {
 	unsigned char* dev_data_i = 0;
 	unsigned char* dev_data_o = 0;
@@ -44,7 +44,7 @@ cudaError_t addWithCuda(unsigned char* data, unsigned int width, unsigned int he
 		goto Error;
 	}
 
-	cudaStatus = cudaMalloc((void**)&dev_data_o, sizeof(data));
+	cudaStatus = cudaMalloc((void**)&dev_data_o, sizeof(dataGrey));
 	if (cudaStatus != cudaSuccess) {
 		fprintf(stderr, "cudaMalloc failed!");
 		goto Error;
@@ -57,9 +57,16 @@ cudaError_t addWithCuda(unsigned char* data, unsigned int width, unsigned int he
 		goto Error;
 	}
 
+	// Copy input vectors from host memory to GPU buffers.
+	cudaStatus = cudaMemcpy(dev_data_o, dataGrey, sizeof(dataGrey), cudaMemcpyHostToDevice);
+	if (cudaStatus != cudaSuccess) {
+		fprintf(stderr, "cudaMemcpy failed!");
+		goto Error;
+	}
+
 	dim3 blockSize(16, 16, 1);
 	dim3 gridSize((width + blockSize.x - 1) / blockSize.x, (height + blockSize.y - 1) / blockSize.y, 1);
-	colorConvert <<< gridSize, blockSize >> > (data, data, width, height);
+	colorConvert <<<gridSize, blockSize>>> (data, dataGrey, width, height);
 
 Error:
 	cudaFree(dev_data_i);
@@ -72,12 +79,14 @@ Error:
 int main()
 {
 	int width, height, nrChannels;
+	int widthG, heightG, nrChannelsG;
 	unsigned char *data = stbi_load("C:\\Users\\bsbar\\OneDrive\\Pulpit\\CUDA\\CUDA\\IMAGES\\batgirl.png", &width, &height, &nrChannels, 0);
-	if (data)
+	unsigned char *dataGrey = stbi_load("C:\\Users\\bsbar\\OneDrive\\Pulpit\\CUDA\\CUDA\\IMAGES\\batgirl.png", &widthG, &heightG, &nrChannelsG, 0);
+	if (data && dataGrey)
 	{
-
-		addWithCuda(data, width, height);
-		stbi_write_png("C:\\Users\\bsbar\\OneDrive\\Pulpit\\CUDA\\CUDA\\IMAGES\\batgirlGray.png", width, height, nrChannels, data, width * nrChannels);
+		std::cout << "Successed loaded texture" << std::endl;
+		colorConvertWithCuda(data, dataGrey, width, height);
+		stbi_write_png("C:\\Users\\bsbar\\OneDrive\\Pulpit\\CUDA\\CUDA\\IMAGES\\batgirlGray.png", widthG, heightG, nrChannelsG, dataGrey, width * nrChannels);
 	}
 	else
 	{
