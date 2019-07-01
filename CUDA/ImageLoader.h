@@ -12,7 +12,7 @@ public:
 	ImageLoader();
 	~ImageLoader();
 	void loadImage(const char *path);
-	void writeImage();
+	void saveImage();
 	int getWidth();
 	int getHeight();
 	int getChannels();

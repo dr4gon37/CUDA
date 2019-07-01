@@ -38,9 +38,9 @@ void ImageLoader::loadImage(const char * path)
 	stbi_image_free(data);
 }
 
-void ImageLoader::writeImage()
+void ImageLoader::saveImage()
 {
-	stbi_write_jpg("output.jpg", width, height, 3, pixels, 100);
+	stbi_write_jpg("output.jpg", this->width, this->height, 3, this->pixels, 100);
 }
 
 int ImageLoader::getWidth()
