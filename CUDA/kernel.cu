@@ -5,12 +5,12 @@ __global__ void colorConvert(Pixel *pixels, unsigned int width, unsigned int hei
 	int y = blockIdx.y;
 	int offset = x + y * gridDim.x;
 	//if (x < width && y < height) {
-		unsigned char r = pixels[offset].r;
-		unsigned char g = pixels[offset].g;
-		unsigned char b = pixels[offset].b;
-		pixels[offset].r = 0.21f*r;
-		pixels[offset].g = 0.71f*g;
-		pixels[offset].b = 0.07f*b;
+	unsigned char r = pixels[offset].r;
+	unsigned char g = pixels[offset].g;
+	unsigned char b = pixels[offset].b;
+	pixels[offset].r = 0.21f*r + 0.71f*g + 0.07f*b;
+	pixels[offset].g = 0.21f*r + 0.71f*g + 0.07f*b;
+	pixels[offset].b = 0.21f*r + 0.71f*g + 0.07f*b; 
 	//}
 }
 
